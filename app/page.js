@@ -1,16 +1,54 @@
 'use client'
 
 import { useAuth } from '@/hooks/useAuth'
-import React from 'react'
+import axios from 'axios'
+import { useRouter } from 'next/navigation'
+import React, { useEffect } from 'react'
 
 const Home = () => {
-  const {user} = useAuth()
+  const router = useRouter()
+  const { user } = useAuth()
+  console.log(user?.name)
+
+  useEffect(()=>{
+
+    if(!user?.name){
+
+      router.push('/auth/login')
+    }
+    else {
+      router.push('/')
+    }
+  },[user])
+
+  const handleLogout = async()=>{
+    await axios.get(
+      "https://hr-management-1wt7.onrender.com/api/v1/logout"
+    );
+    localStorage.removeItem("user");
+    router.push('/auth/login');
+  }
+
   return (
-    <div className='flex justify-center items-center pt-20'>
-      <h1 className=' text-2xl '>
-      Welcome {user?.name} to Dashboard
-      </h1>
-    </div>
+    <>
+      { user?.name &&
+        <div>
+          <div className='flex  justify-center items-center pt-20'>
+            <h1 className=' text-2xl '>
+              Welcome {user?.name} to Dashboard
+            </h1>
+
+
+          </div>
+          <div className='flex  justify-center items-center '>
+
+          <button 
+          onClick={handleLogout}
+          className='mt-3 ml-5 bg-gray-300 p-2 rounded-lg'>Logout</button>
+          </div>
+        </div>
+      }
+    </>
   )
 }
 
