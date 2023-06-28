@@ -1,10 +1,11 @@
 "use client"
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import AuthLayout from '@/components/AuthLayout';
+import { toast } from 'react-toastify';
 
 const forgetPassword = () => {
   const validationSchema = Yup.object().shape({
@@ -23,8 +24,6 @@ const forgetPassword = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const [errorMessage, setErrorMessage] = useState('');
-
   const handleForgetPass = (data) => {
     validationSchema
       .validate(data, { abortEarly: false })
@@ -32,21 +31,26 @@ const forgetPassword = () => {
         const response = await axios.get(
           `https://hr-management-1wt7.onrender.com/api/v1/forgot_password/${formData.email}`
         );
-
         if (response.status >= 200 && response.status < 300) {
-          // Reset form and show success message
+          toast.info("Check your email to reset password");
         }
       })
-      .catch((validationErrors) => {
-        const errorMessages = validationErrors.inner?.reduce((messages, error) => {
-          return {
-            ...messages,
-            [error.path]: error.message,
-          };
-        }, {});
-        
-        // Set the error message
-        setErrorMessage(errorMessages.email);
+      .catch((error) => {
+        if (error.response) {
+          const response = error.response;
+          if (response.status === 404) {
+            toast.error("Email not found");
+          } 
+          else if (response.status >= 500) {
+            toast.error("Internal server error");
+          } 
+        } else if (error.request) {
+          toast.error("No response from server");
+        } else {
+          console.log("Error", error.message);
+          toast.error("An error occurred");
+        }
+        console.log(error.config);
       });
   };
 
@@ -79,9 +83,6 @@ const forgetPassword = () => {
                     />
                     {errors.email && (
                       <p className="text-red-500 text-xs mt-2">{errors.email?.message}</p>
-                    )}
-                    {errorMessage && (
-                      <p className="text-red-500 text-xs mt-2">{errorMessage}</p>
                     )}
                   </div>
                   <div className="text-center mt-6">

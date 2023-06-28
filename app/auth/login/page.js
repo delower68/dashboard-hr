@@ -1,20 +1,18 @@
 "use client"
+import React from 'react'
 import Link from 'next/link'
-import React, { useState } from 'react'
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import AuthLayout from '@/components/AuthLayout';
-import PopupMessage from '@/components/PopupMessage';
 import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'react-toastify';
 
 
 const login = () => {
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState('');
-  // const { addToast } = useToasts();
   const {user} = useAuth()
 console.log(user)
   const validationSchema = Yup.object().shape({
@@ -35,10 +33,6 @@ console.log(user)
         "Password should contain at least one special character"
       )
       .required("Password is required"),
-
-    // acceptTerms: Yup.string()
-    //   .oneOf([true], "You must accept the terms and conditions")
-    //   .required("You must accept the terms and conditions"),
   });
   const {
     register,
@@ -60,7 +54,7 @@ console.log(user)
         console.log(response.status);
         if (response.status >= 200 && response.status < 300) {
           router.push("/");
-         
+          toast.success("login successfully");
           localStorage.setItem("user", JSON.stringify(userInfo));
         }
       })
@@ -68,36 +62,26 @@ console.log(user)
         if (error.response) {
           const response = error.response;
           if (response.status === 500) {
-            // addToast("Email not found", { appearance: "error" });
+            toast.error("Email not found");
           } else if (response.status === 401) {
-            // addToast("Email is not verified", { appearance: "error" });
+            toast.error("Email is not verified");
           } else if (response.status >= 400 && response.status <= 500) {
             const errorMessage = response.data.message;
-            setErrorMessage(errorMessage)
-            console.log(errorMessage);
-            // addToast(errorMessage, { appearance: "error" });
+            toast.error(errorMessage);
           } else {
-            // addToast("Internal server error", { appearance: "error" });
+            toast.error("Internal server error");
           }
         } else if (error.request) {
           console.log(error.request);
-          // addToast("No response from server", { appearance: "error" });
+          toast.error("No response from server");
         } else {
           console.log("Error", error.message);
-          // addToast("An error occurred", { appearance: "error" });
+          toast.error("An error occurred");
         }
         console.log(error.config);
       });
   };
 
-  const handleShowPopup = (message) => {
-    setPopupMessage(message);
-    setShowPopup(true);
-  };
-
-  const handleClosePopup = () => {
-    setShowPopup(false);
-  };
   return (
     <AuthLayout>
         <div className="container mx-auto px-4 h-full ">
@@ -110,7 +94,6 @@ console.log(user)
                       Sign in With Credentials
                     </h6>
                   </div>
-                  <h4  className="text-center text-[#a38b8b] text-md mt-2">{errorMessage}</h4>
 
                   <hr className="mt-6 border-b-1 border-blueGray-300" />
                 </div>
@@ -198,8 +181,6 @@ console.log(user)
             </div>
           </div>
         </div>
-        <PopupMessage message={errorMessage} onClose={handleClosePopup} />
-      
       </AuthLayout>
   )
 }

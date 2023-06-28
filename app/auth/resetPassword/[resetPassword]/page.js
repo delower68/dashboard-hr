@@ -7,6 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
 import { useRouter,usePathname } from 'next/navigation';
 import AuthLayout from '@/components/AuthLayout';
+import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
     const router = useRouter()
@@ -54,22 +55,17 @@ const ResetPassword = () => {
             );
             console.log(response);
             if (response.status >= 200 && response.status < 300) {
-              router.push("/auth/login");
+                toast.success("Password reset successfully")
+                router.push("/auth/login");
             }
           })
-          .catch((validationErrors) => {
-            if (validationErrors.inner && validationErrors.inner.length > 0) {
-              const errorMessages = validationErrors.inner?.reduce(
-                (messages, error) => ({
-                  ...messages,
-                  [error.path]: error.message,
-                }),
-                {}
-              );
-              console.log(errorMessages);
-            } else {
-              console.log(validationErrors.message);
-            }
+          .catch((error) => {
+            if (error.response) {
+              const response = error.response;
+              if (response.status === 500) {
+                toast.error("Internal server error");
+              }
+            } 
           });
       };
       

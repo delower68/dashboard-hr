@@ -8,7 +8,6 @@ const Email_verify_confirm = () => {
   const pathname = usePathname();
     const email = pathname.split('email_verify_confirm/')[1] ;
 
-    console.log(email)
   return (
     <AuthLayout>
     <div className="container mx-auto px-4 mt-48 h-full">

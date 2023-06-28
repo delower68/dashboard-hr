@@ -7,6 +7,7 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import AuthLayout from '@/components/AuthLayout';
+import { toast } from 'react-toastify';
 
 const register = () => {
   const [isChecked, setIsChecked] = useState(false);
@@ -59,20 +60,27 @@ const register = () => {
         console.log(response.data);
         if (response.status >= 200 && response.status < 300 && typeof window !== "undefined") {
           router.push("/auth/login");
+          toast.success("SignUp successfully");
+          toast.info("Check your email to verify");
         }
       })
       .catch((error) => {
         if (error.response) {
           const response = error.response;
           if (response.status === 406) {
-            // addToast("Your email is already registered", { appearance: "error" });
+            toast.error("Email is already registered");
+          } else if (response.status >= 400 && response.status <= 500) {
+            const errorMessage = response.data.message;
+            toast.error(errorMessage);
           } else {
-            console.log(response.data);
+            toast.error("Internal server error");
           }
         } else if (error.request) {
           console.log(error.request);
+          toast.error("No response from server");
         } else {
           console.log("Error", error.message);
+          toast.error("An error occurred");
         }
         console.log(error.config);
       });

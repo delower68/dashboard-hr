@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import React, { useEffect } from 'react'
+import { toast } from 'react-toastify'
 
 const Home = () => {
   const router = useRouter()
@@ -26,6 +27,7 @@ const Home = () => {
       "https://hr-management-1wt7.onrender.com/api/v1/logout"
     );
     localStorage.removeItem("user");
+    toast.success("logout successfully");
     router.push('/auth/login');
   }
 
