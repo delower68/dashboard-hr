@@ -11,8 +11,8 @@ import { toast } from 'react-toastify';
 
 const register = () => {
   const [isChecked, setIsChecked] = useState(false);
+  const [loading, setLoading] = useState(false)
   const router = useRouter();
-  // const { addToast } = useToasts();
 
   const validationSchema = Yup.object().shape({
     full_name: Yup.string()
@@ -50,6 +50,7 @@ const register = () => {
   });
 
   const handelSignUp = (data) => {
+    setLoading(true);
     validationSchema
       .validate(data, { abortEarly: false })
       .then(async (formData) => {
@@ -63,8 +64,10 @@ const register = () => {
           toast.success("SignUp successfully");
           toast.info("Check your email to verify");
         }
+        setLoading(false);
       })
       .catch((error) => {
+        setLoading(false)
         if (error.response) {
           const response = error.response;
           if (response.status === 406) {
@@ -185,15 +188,21 @@ const register = () => {
                 </div>
 
                 <div className="text-center mt-6">
-                  <button
-                    className="bg-gray-400 text-white active:bg-gray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
-                    value="Submit"
-                    type="submit"
-                    disabled={!isChecked}
-                  >
-                    Create Account
-                  </button>
-                </div>
+                      <button
+                        className="bg-gray-800 text-white active:bg-gray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                        value="Submit"
+                        type="submit"
+                        disabled={loading}
+                      >
+                        {!loading && <span className='indicator-label'> Sign Up</span>}
+                        {loading && (
+                          <span className='indicator-progress' style={{ display: 'block' }}>
+                            Please wait...
+                            <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
+                          </span>
+                        )}
+                      </button>
+                    </div>
               </form>
             </div>
           </div>

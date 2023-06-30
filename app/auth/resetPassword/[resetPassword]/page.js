@@ -10,6 +10,7 @@ import AuthLayout from '@/components/AuthLayout';
 import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
+    const [loading, setLoading] = useState(false)
     const router = useRouter()
     const pathname = usePathname();
     const token = pathname.split('resetPassword/')[1] ;
@@ -42,6 +43,7 @@ const ResetPassword = () => {
     });
 
     const handelResetPassword = (data) => {
+        setLoading(true);
         validationSchema
           .validate(data, { abortEarly: false })
           .then(async (formData) => {
@@ -58,8 +60,10 @@ const ResetPassword = () => {
                 toast.success("Password reset successfully")
                 router.push("/auth/login");
             }
+            setLoading(false);
           })
           .catch((error) => {
+            setLoading(false);
             if (error.response) {
               const response = error.response;
               if (response.status === 500) {
@@ -128,15 +132,22 @@ const ResetPassword = () => {
                                             </p>
                                         )}
                                     </div>
-                                        <div className="text-center mt-6">
-                                        <button
-                                            className="bg-gray-800 text-white active:bg-gray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
-                                            value="Submit"
-                                            type="submit"
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
+                                    <div className="text-center mt-6">
+                      <button
+                        className="bg-gray-800 text-white active:bg-gray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                        value="Submit"
+                        type="submit"
+                        disabled={loading}
+                      >
+                        {!loading && <span className='indicator-label'> Submit</span>}
+                        {loading && (
+                          <span className='indicator-progress' style={{ display: 'block' }}>
+                            Please wait...
+                            <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
+                          </span>
+                        )}
+                      </button>
+                    </div>
                                 </form>
                             </div>
                         </div>

@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -8,6 +8,7 @@ import AuthLayout from '@/components/AuthLayout';
 import { toast } from 'react-toastify';
 
 const forgetPassword = () => {
+  const [loading, setLoading] = useState(false)
   const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email('Wrong email format')
@@ -25,6 +26,7 @@ const forgetPassword = () => {
   });
 
   const handleForgetPass = (data) => {
+    setLoading(true);
     validationSchema
       .validate(data, { abortEarly: false })
       .then(async (formData) => {
@@ -34,8 +36,10 @@ const forgetPassword = () => {
         if (response.status >= 200 && response.status < 300) {
           toast.info("Check your email to reset password");
         }
+        setLoading(false);
       })
       .catch((error) => {
+        setLoading(false);
         if (error.response) {
           const response = error.response;
           if (response.status === 404) {
@@ -86,14 +90,21 @@ const forgetPassword = () => {
                     )}
                   </div>
                   <div className="text-center mt-6">
-                    <button
-                      className="bg-gray-800 text-white active:bg-gray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
-                      value="Submit"
-                      type="submit"
-                    >
-                      Submit
-                    </button>
-                  </div>
+                      <button
+                        className="bg-gray-800 text-white active:bg-gray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                        value="Submit"
+                        type="submit"
+                        disabled={loading}
+                      >
+                        {!loading && <span className='indicator-label'> Submit</span>}
+                        {loading && (
+                          <span className='indicator-progress' style={{ display: 'block' }}>
+                            Please wait...
+                            <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
+                          </span>
+                        )}
+                      </button>
+                    </div>
                 </form>
               </div>
             </div>
